@@ -163,6 +163,43 @@ class Router:
         return next(n for n in self.regions if n != self.primary)
 
 
+# ------------------------------------------------------------ fleet chaos pool
+
+
+@dataclass
+class ChaosPool:
+    """Per-node failure injection across a pool of nodes.
+
+    Nodes are names mapped to objects with kill()/heal() (RegionServer fits).
+    Every injection is recorded with the node label and wall time, so a drill
+    report can attribute each failure to a specific fleet node. Default
+    two-region drill is unchanged; this is the opt-in multi-node layer.
+    """
+
+    nodes: dict                    # name -> object with kill()/heal()
+    history: list = field(default_factory=list)
+
+    def inject(self, node: str, action: str) -> dict:
+        assert action in ("kill", "heal"), action
+        assert node in self.nodes, f"unknown node {node}"
+        getattr(self.nodes[node], action)()
+        event = {"node": node, "action": action, "at": time.time()}
+        self.history.append(event)
+        return event
+
+    def down_nodes(self) -> list:
+        """Nodes currently killed (heal-able) — derived, not tracked twice."""
+        return sorted(n for n, obj in self.nodes.items() if not obj.healthy)
+
+    def run_schedule(self, schedule: list) -> list:
+        """Apply [(delay_s, node, action), ...] in order; returns the history."""
+        for delay, node, action in schedule:
+            if delay:
+                time.sleep(delay)
+            self.inject(node, action)
+        return self.history
+
+
 def drill() -> dict:
     random.seed(7)
     a = RegionServer("region-a", 8411, latency_s=0.03)

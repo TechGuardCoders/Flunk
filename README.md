@@ -46,3 +46,16 @@ uv venv --python 3.11 .venv && uv pip install pytest
 ## What's next
 
 RTO/RPO numbers feed the **Benchwarmer** capstone teardown; the router's failover events join Cost Peep's reliability panel.
+
+## Fleet chaos (opt-in)
+
+`ChaosPool` injects failures per node across a pool (any object with
+`kill()`/`heal()`), records every injection with its node label, and derives
+the currently-down set. The default two-region drill is unchanged.
+
+```python
+from flunk import ChaosPool
+pool = ChaosPool(nodes={"glm-head": srv_a, "tensorfold": srv_b})
+pool.run_schedule([(0, "glm-head", "kill"), (2, "glm-head", "heal")])
+pool.down_nodes()   # ["tensorfold"] etc.
+```
