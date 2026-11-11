@@ -37,8 +37,8 @@ def test_recovery_needs_consecutive_hits():
 
 
 def test_router_fails_over_and_back():
-    a = RegionServer("region-a", 8421, latency_s=0.01)
-    b = RegionServer("region-b", 8422, latency_s=0.01)
+    a = RegionServer("region-a", 0, latency_s=0.01)
+    b = RegionServer("region-b", 0, latency_s=0.01)
     r = Router(regions={"a": a, "b": b}, primary="a")
     for _ in range(FAILURE_THRESHOLD):
         r.probe("a")

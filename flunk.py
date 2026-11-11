@@ -73,6 +73,8 @@ class RegionServer:
                 pass
 
         self.httpd = ThreadingHTTPServer(("127.0.0.1", port), H)
+        if port == 0:  # ephemeral: capture the OS-assigned port
+            self.port = self.httpd.server_address[1]
         threading.Thread(target=self.httpd.serve_forever, daemon=True).start()
 
     def kill(self):
