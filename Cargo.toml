@@ -1,0 +1,14 @@
+[package]
+name = "flunk"
+version = "0.1.0"
+edition = "2021"
+description = "Flunk - multi-region failover drill (Rust port; Python stays as reference)"
+license = "MIT"
+
+[lib]
+name = "flunk"
+path = "src/lib.rs"
+
+[[bin]]
+name = "flunk"
+path = "src/main.rs"

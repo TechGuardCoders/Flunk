@@ -13,3 +13,13 @@ jobs:
       - run: python -m pytest tests/ -q
       - name: live failover drill smoke
         run: python flunk.py
+
+  rust:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: cargo test (Rust port, 1:1 with Python tests)
+        run: cargo test
+      - name: live failover drill smoke (rust)
+        run: cargo run --quiet

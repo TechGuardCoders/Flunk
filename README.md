@@ -43,6 +43,21 @@ uv venv --python 3.11 .venv && uv pip install pytest
 ./.venv/Scripts/python flunk.py               # live 3-phase drill
 ```
 
+## Rust port (same repo, Python stays as reference)
+
+`src/lib.rs` is a 1:1 Rust port of `flunk.py` — `RegionServer` (std-only
+`TcpListener` HTTP server, thread-per-connection like `ThreadingHTTPServer`),
+`Router` (same two-rule detector: 3 consecutive misses → DOWN, 3 consecutive
+hits after DOWN → recovered), `ChaosPool` (per-node injection with the same
+`kill`/`heal`/`down_nodes`/`run_schedule` interface), and the live `drill()`
+binary. Region servers bind ephemeral port 0 and report the OS-assigned port,
+same as the Python tests. No external crates — std only.
+
+```bash
+cargo test          # 8 tests, 1:1 port of tests/test_flunk.py + tests/test_chaos_pool.py
+cargo run           # live 3-phase drill (same phases/metrics as python flunk.py)
+```
+
 ## What's next
 
 RTO/RPO numbers feed the **Benchwarmer** capstone teardown; the router's failover events join Cost Peep's reliability panel.
