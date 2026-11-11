@@ -74,3 +74,13 @@ pool = ChaosPool(nodes={"glm-head": srv_a, "tensorfold": srv_b})
 pool.run_schedule([(0, "glm-head", "kill"), (2, "glm-head", "heal")])
 pool.down_nodes()   # ["tensorfold"] etc.
 ```
+
+## Docker
+
+Multi-stage, multi-arch (amd64 + arm64), non-root runtime image.
+
+```bash
+docker build --target test .          # run the test suite in-container
+docker build -t flunk .               # runtime image (smoke import)
+docker run --rm flunk
+```
